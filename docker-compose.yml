@@ -40,6 +40,13 @@ services:
     depends_on:
       backend:
         condition: service_healthy
-
+        
+  newman:
+    image: postman/newman:alpine
+    depends_on:
+      backend:
+        condition: service_healthy
+    volumes:
+      - ./postman:/etc/newman
 volumes:
   pgdata:
