@@ -1,0 +1,165 @@
+{
+  "info": {
+    "name": "PrinterHub MVP - Integration Tests",
+    "_postman_id": "6f6b09d2-8f0a-4b88-9f18-0e2b5f1eac1a",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', function(){ pm.response.to.have.status(200); });",
+              "pm.test('Body has status', function(){ pm.expect(pm.response.json().status).to.eql('ok'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create Printer",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\": \"Test Printer\", \"model\": \"Mock\", \"ip_address\": \"10.0.0.1\", \"status\": \"idle\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/printers",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "printers"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 201', function(){ pm.response.to.have.status(201); });",
+              "var data = pm.response.json();",
+              "pm.test('Has id', function(){ pm.expect(data.id).to.be.a('number'); });",
+              "pm.environment.set('printer_id', data.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List Printers",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/printers",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "printers"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', function(){ pm.response.to.have.status(200); });",
+              "const arr = pm.response.json();",
+              "pm.test('Array not empty', function(){ pm.expect(arr.length).to.be.greaterThan(0); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create Job",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"title\": \"Integration Job\", \"printer_id\": \"{{printer_id}}\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/jobs",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "jobs"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 201', function(){ pm.response.to.have.status(201); });",
+              "var data = pm.response.json();",
+              "pm.test('Has id', function(){ pm.expect(data.id).to.be.a('number'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List Jobs",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/jobs",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "jobs"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', function(){ pm.response.to.have.status(200); });",
+              "const arr = pm.response.json();",
+              "pm.test('Array not empty', function(){ pm.expect(arr.length).to.be.greaterThan(0); });"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": []
+}
