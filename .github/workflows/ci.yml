@@ -2,44 +2,34 @@ name: CI
 
 on:
   push:
-    branches: [ "main", "master", "develop" ]
+    branches: [ "main" ]
   pull_request:
 
 jobs:
-  build-and-test:
+  integration:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build and start services
+      - name: Build and start stack
         run: docker compose up -d --build
 
       - name: Wait for backend health
+        shell: bash
         run: |
-          for i in {1..30}; do
+          for i in {1..60}; do
             if curl -fsS http://localhost:8000/health > /dev/null; then
-              echo "Backend is up"
+              echo "Backend is healthy"
               exit 0
             fi
-            echo "Waiting backend..."
             sleep 2
           done
-          echo "Backend did not start in time"
+          echo "Backend did not become healthy"
           docker compose logs backend
           exit 1
 
-      - name: Run integration tests (Postman/Newman)
-        run: |
-          docker run --rm --network host             -v "$PWD/postman:/etc/newman"             postman/newman:alpine             run /etc/newman/collection.json -e /etc/newman/env.json
-
-      - name: Show logs on failure
-        if: failure()
-        run: docker compose logs
+      - name: Run integration tests (Newman)
+        run: docker compose run --rm newman run /etc/newman/collection.json -e /etc/newman/env.json
 
       - name: Shutdown
         if: always()
