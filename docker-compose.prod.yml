@@ -5,47 +5,37 @@ services:
       POSTGRES_DB: printerhub
       POSTGRES_USER: printerhub
       POSTGRES_PASSWORD: printerhub
-    ports:
-      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U printerhub -d printerhub"]
       interval: 5s
-      timeout: 5s
-      retries: 10
+      timeout: 3s
+      retries: 20
 
   backend:
-    build:
-      context: ./backend
+    image: vpshukin/printerhub-backend:latest
     environment:
       DATABASE_URL: postgresql+psycopg://printerhub:printerhub@db:5432/printerhub
-    ports:
-      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
+    ports:
+      - "8000:8000"
     healthcheck:
-      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read(); print('ok')\""]
-      interval: 10s
-      timeout: 5s
-      retries: 10
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()\""]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 10s
 
   frontend:
-    build:
-      context: ./frontend
+    image: vpshukin/printerhub-frontend:latest
+    depends_on:
+      backend:
+        condition: service_healthy
     ports:
       - "8080:80"
-    depends_on:
-      backend:
-        condition: service_healthy
 
-  newman:
-    image: postman/newman:alpine
-    depends_on:
-      backend:
-        condition: service_healthy
-    volumes:
-      - ./postman:/etc/newman
 volumes:
   pgdata:

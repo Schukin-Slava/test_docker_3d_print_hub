@@ -65,7 +65,7 @@ export function App() {
 
   return (
     <div style={{ fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Arial", padding: 24, maxWidth: 980, margin: "0 auto" }}>
-      <h1 style={{ marginTop: 0 }}>PrinterHub MVP</h1>
+      <h1 style={{ marginTop: 0 }}>PrinterHub</h1>
 
       <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
         <div style={{ padding: 16, border: "1px solid #ddd", borderRadius: 12, minWidth: 260 }}>
@@ -166,10 +166,6 @@ export function App() {
             </tbody>
           </table>
         </div>
-      </div>
-
-      <div style={{ marginTop: 18, opacity: 0.7, fontSize: 12 }}>
-        UI обращается к backend по <code>/api</code> (nginx proxy) → backend работает с PostgreSQL.
       </div>
     </div>
   );
